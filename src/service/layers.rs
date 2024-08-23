@@ -19,7 +19,7 @@ use super::state::{ServerState, State};
 ///
 /// # Specification
 ///
-/// https://microsoft.github.io/language-server-protocol/specification#initialize
+/// <https://microsoft.github.io/language-server-protocol/specification#initialize>
 pub struct Initialize {
     state: Arc<ServerState>,
     pending: Arc<Pending>,
@@ -27,7 +27,7 @@ pub struct Initialize {
 
 impl Initialize {
     pub fn new(state: Arc<ServerState>, pending: Arc<Pending>) -> Self {
-        Initialize { state, pending }
+        Self { state, pending }
     }
 }
 
@@ -88,7 +88,7 @@ where
 ///
 /// # Specification
 ///
-/// https://microsoft.github.io/language-server-protocol/specification#shutdown
+/// <https://microsoft.github.io/language-server-protocol/specification#shutdown>
 pub struct Shutdown {
     state: Arc<ServerState>,
     pending: Arc<Pending>,
@@ -96,7 +96,7 @@ pub struct Shutdown {
 
 impl Shutdown {
     pub fn new(state: Arc<ServerState>, pending: Arc<Pending>) -> Self {
-        Shutdown { state, pending }
+        Self { state, pending }
     }
 }
 
@@ -149,7 +149,7 @@ where
 ///
 /// # Specification
 ///
-/// https://microsoft.github.io/language-server-protocol/specification#exit
+/// <https://microsoft.github.io/language-server-protocol/specification#exit>
 pub struct Exit {
     state: Arc<ServerState>,
     pending: Arc<Pending>,
@@ -158,7 +158,7 @@ pub struct Exit {
 
 impl Exit {
     pub fn new(state: Arc<ServerState>, pending: Arc<Pending>, client: Client) -> Self {
-        Exit {
+        Self {
             state,
             pending,
             client,
@@ -217,7 +217,7 @@ pub struct Normal {
 
 impl Normal {
     pub fn new(state: Arc<ServerState>, pending: Arc<Pending>) -> Self {
-        Normal { state, pending }
+        Self { state, pending }
     }
 }
 
@@ -266,7 +266,7 @@ where
 ///
 /// # Specification
 ///
-/// https://microsoft.github.io/language-server-protocol/specification#cancelRequest
+/// <https://microsoft.github.io/language-server-protocol/specification#cancelRequest>
 struct Cancellable<S> {
     inner: S,
     pending: Arc<Pending>,
@@ -274,7 +274,7 @@ struct Cancellable<S> {
 
 impl<S> Cancellable<S> {
     fn new(inner: S, pending: Arc<Pending>) -> Self {
-        Cancellable { inner, pending }
+        Self { inner, pending }
     }
 }
 

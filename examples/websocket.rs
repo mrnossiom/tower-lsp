@@ -5,7 +5,7 @@ use tower_lsp::jsonrpc::Result;
 use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer, LspService, Server};
 use tracing::info;
-use ws_stream_tungstenite::*;
+use ws_stream_tungstenite::WsStream;
 
 #[derive(Debug)]
 struct Backend {

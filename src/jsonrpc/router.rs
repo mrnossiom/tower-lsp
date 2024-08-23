@@ -26,7 +26,7 @@ pub struct Router<S, E = Infallible> {
 impl<S: Send + Sync + 'static, E> Router<S, E> {
     /// Creates a new `Router` with the given shared state.
     pub fn new(server: S) -> Self {
-        Router {
+        Self {
             server: Arc::new(server),
             methods: HashMap::new(),
         }
@@ -110,7 +110,7 @@ impl<P: FromParams, R: IntoResponse, E> MethodHandler<P, R, E> {
         F: Fn(P) -> Fut + Send + 'static,
         Fut: Future<Output = R> + Send + 'static,
     {
-        MethodHandler {
+        Self {
             f: Box::new(move |p| handler(p).boxed()),
             _marker: PhantomData,
         }
@@ -178,7 +178,7 @@ where
     type Future = Fut;
 
     #[inline]
-    fn invoke(&self, server: S, _: ()) -> Self::Future {
+    fn invoke(&self, server: S, (): ()) -> Self::Future {
         self(server)
     }
 }
@@ -207,24 +207,23 @@ pub trait FromParams: private::Sealed + Send + Sized + 'static {
 /// Deserialize non-existent JSON-RPC parameters.
 impl FromParams for () {
     fn from_params(params: Option<Value>) -> super::Result<Self> {
-        if let Some(p) = params {
+        params.map_or(Ok(()), |p| {
             Err(Error::invalid_params(format!("Unexpected params: {p}")))
-        } else {
-            Ok(())
-        }
+        })
     }
 }
 
 /// Deserialize required JSON-RPC parameters.
 impl<P: DeserializeOwned + Send + 'static> FromParams for (P,) {
     fn from_params(params: Option<Value>) -> super::Result<Self> {
-        if let Some(p) = params {
-            serde_json::from_value(p)
-                .map(|params| (params,))
-                .map_err(|e| Error::invalid_params(e.to_string()))
-        } else {
-            Err(Error::invalid_params("Missing params field"))
-        }
+        params.map_or_else(
+            || Err(Error::invalid_params("Missing params field")),
+            |p| {
+                serde_json::from_value(p)
+                    .map(|params| (params,))
+                    .map_err(|e| Error::invalid_params(e.to_string()))
+            },
+        )
     }
 }
 
@@ -253,7 +252,7 @@ impl IntoResponse for () {
 impl<R: Serialize + Send + 'static> IntoResponse for Result<R, Error> {
     fn into_response(self, id: Option<Id>) -> Option<Response> {
         debug_assert!(id.is_some(), "Requests always contain an `id` field");
-        if let Some(id) = id {
+        id.map(|id| {
             let result = self.and_then(|r| {
                 serde_json::to_value(r).map_err(|e| Error {
                     code: ErrorCode::InternalError,
@@ -261,10 +260,8 @@ impl<R: Serialize + Send + 'static> IntoResponse for Result<R, Error> {
                     data: None,
                 })
             });
-            Some(Response::from_parts(id, result))
-        } else {
-            None
-        }
+            Response::from_parts(id, result)
+        })
     }
 
     #[inline]

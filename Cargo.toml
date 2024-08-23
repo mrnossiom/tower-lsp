@@ -8,12 +8,15 @@ unsafe_code = "deny"
 [workspace.lints.clippy]
 pedantic = { level = "warn", priority = -1 }
 nursery = { level = "warn", priority = -1 }
-cargo = { level = "warn", priority = -1 }
+# cargo = { level = "warn", priority = -1 }
 
 dbg_macro = "warn"
 # missing_docs_in_private_items = "warn"
-# todo = "warn"
+todo = "warn"
 # unwrap_used = "warn"
+
+future_not_send = "allow"
+redundant_pub_crate = "allow"
 [workspace.lints.rustdoc]
 all = "warn"
 

@@ -21,13 +21,13 @@ impl LanguageServer for Backend {
                 completion_provider: Some(CompletionOptions {
                     resolve_provider: Some(false),
                     trigger_characters: Some(vec![".".to_string()]),
-                    work_done_progress_options: Default::default(),
+                    work_done_progress_options: WorkDoneProgressOptions::default(),
                     all_commit_characters: None,
                     ..Default::default()
                 }),
                 execute_command_provider: Some(ExecuteCommandOptions {
                     commands: vec!["dummy.do_something".to_string()],
-                    work_done_progress_options: Default::default(),
+                    work_done_progress_options: WorkDoneProgressOptions::default(),
                 }),
                 workspace: Some(WorkspaceServerCapabilities {
                     workspace_folders: Some(WorkspaceFoldersServerCapabilities {
@@ -139,10 +139,9 @@ async fn main() {
             let (stream, _) = listener.accept().await.unwrap();
             stream
         }
-        Some(arg) => panic!(
-            "Unrecognized argument: {}. Use --listen to listen for connections.",
-            arg
-        ),
+        Some(arg) => {
+            panic!("Unrecognized argument: {arg}. Use --listen to listen for connections.")
+        }
     };
 
     let (read, write) = tokio::io::split(stream);

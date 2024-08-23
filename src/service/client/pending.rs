@@ -15,7 +15,7 @@ pub struct Pending(DashMap<Id, Vec<oneshot::Sender<Response>>>);
 impl Pending {
     /// Creates a new pending client requests map.
     pub fn new() -> Self {
-        Pending(DashMap::new())
+        Self(DashMap::new())
     }
 
     /// Inserts the given response into the map.

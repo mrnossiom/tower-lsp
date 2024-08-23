@@ -65,7 +65,7 @@ impl<S: LanguageServer> LspService<S> {
     where
         F: FnOnce(Client) -> S,
     {
-        LspService::build(init).finish()
+        Self::build(init).finish()
     }
 
     /// Starts building a new `LspService`.
@@ -95,6 +95,7 @@ impl<S: LanguageServer> LspService<S> {
     }
 
     /// Returns a reference to the inner server.
+    #[must_use]
     pub fn inner(&self) -> &S {
         self.inner.inner()
     }
@@ -213,6 +214,7 @@ impl<S: LanguageServer> LspServiceBuilder<S> {
     ///     .custom_method("custom/notificationParams", Mock::notification_params)
     ///     .finish();
     /// ```
+    #[must_use]
     pub fn custom_method<P, R, F>(mut self, name: &'static str, callback: F) -> Self
     where
         P: FromParams,
@@ -226,8 +228,9 @@ impl<S: LanguageServer> LspServiceBuilder<S> {
 
     /// Constructs the `LspService` and returns it, along with a channel for server-to-client
     /// communication.
+    #[must_use]
     pub fn finish(self) -> (LspService<S>, ClientSocket) {
-        let LspServiceBuilder {
+        let Self {
             inner,
             state,
             socket,

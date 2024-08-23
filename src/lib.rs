@@ -1333,7 +1333,7 @@ pub trait LanguageServer: Send + Sync + 'static {
     // https://github.com/ebkalderon/tower-lsp/issues/176
 }
 
-fn _assert_object_safe() {
-    fn assert_impl<T: LanguageServer>() {}
+const fn _assert_object_safe() {
+    const fn assert_impl<T: LanguageServer>() {}
     assert_impl::<Box<dyn LanguageServer>>();
 }

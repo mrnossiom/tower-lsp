@@ -10,7 +10,6 @@ use std::task::{Context, Poll};
 use futures::channel::mpsc::{self, Sender};
 use futures::future::BoxFuture;
 use futures::sink::SinkExt;
-use lsp_types::request::WorkspaceDiagnosticRefresh;
 use lsp_types::*;
 use serde::Serialize;
 use serde_json::Value;
@@ -52,7 +51,7 @@ impl Client {
         let (tx, rx) = mpsc::channel(1);
         let pending = Arc::new(Pending::new());
 
-        let client = Client {
+        let client = Self {
             inner: Arc::new(ClientInner {
                 tx,
                 request_id: AtomicU32::new(0),
@@ -350,6 +349,7 @@ impl Client {
     ///
     /// This request was introduced in specification version 3.17.0.
     pub async fn workspace_diagnostic_refresh(&self) -> jsonrpc::Result<()> {
+        use lsp_types::request::WorkspaceDiagnosticRefresh;
         self.send_request::<WorkspaceDiagnosticRefresh>(()).await
     }
 
@@ -543,7 +543,7 @@ impl Client {
         if let State::Initialized | State::ShutDown = self.inner.state.get() {
             self.send_request_unchecked::<R>(params).await
         } else {
-            let id = self.inner.request_id.load(Ordering::SeqCst) as i64 + 1;
+            let id = i64::from(self.inner.request_id.load(Ordering::SeqCst)) + 1;
             let msg = Request::from_request::<R>(id.into(), params);
             trace!("server not initialized, supressing message: {}", msg);
             Err(jsonrpc::not_initialized_error())
@@ -578,9 +578,10 @@ impl Client {
     ///
     /// This method can be used to build custom [`Request`] objects with numeric IDs that are
     /// guaranteed to be unique every time.
+    #[must_use]
     pub fn next_request_id(&self) -> Id {
         let num = self.inner.request_id.fetch_add(1, Ordering::Relaxed);
-        Id::Number(num as i64)
+        Id::Number(i64::from(num))
     }
 }
 
@@ -699,7 +700,7 @@ mod tests {
     #[tokio::test(flavor = "current_thread")]
     async fn publish_diagnostics() {
         let uri: Uri = "file:///path/to/file".parse().unwrap();
-        let diagnostics = vec![Diagnostic::new_simple(Default::default(), "example".into())];
+        let diagnostics = vec![Diagnostic::new_simple(Range::default(), "example".into())];
 
         let params = PublishDiagnosticsParams::new(uri.clone(), diagnostics.clone(), None);
         let expected = Request::from_notification::<PublishDiagnostics>(params);

@@ -13,7 +13,7 @@ struct CustomNotificationParams {
 
 impl CustomNotificationParams {
     fn new(title: impl Into<String>, message: impl Into<String>) -> Self {
-        CustomNotificationParams {
+        Self {
             title: title.into(),
             message: message.into(),
         }
@@ -41,7 +41,7 @@ impl LanguageServer for Backend {
             capabilities: ServerCapabilities {
                 execute_command_provider: Some(ExecuteCommandOptions {
                     commands: vec!["custom.notification".to_string()],
-                    work_done_progress_options: Default::default(),
+                    work_done_progress_options: WorkDoneProgressOptions::default(),
                 }),
                 ..ServerCapabilities::default()
             },

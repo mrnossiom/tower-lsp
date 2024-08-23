@@ -64,8 +64,8 @@ where
     <L::ResponseSink as Sink<Response>>::Error: std::error::Error,
 {
     /// Creates a new `Server` with the given `stdin` and `stdout` handles.
-    pub fn new(stdin: I, stdout: O, socket: L) -> Self {
-        Server {
+    pub const fn new(stdin: I, stdout: O, socket: L) -> Self {
+        Self {
             stdin,
             stdout,
             loopback: socket,
@@ -93,7 +93,8 @@ where
     /// [`ConcurrencyLimit`]: https://docs.rs/tower/latest/tower/limit/concurrency/struct.ConcurrencyLimit.html
     /// [`Buffer`]: https://docs.rs/tower/latest/tower/buffer/index.html
     /// [`tokio::spawn`]: https://docs.rs/tokio/latest/tokio/fn.spawn.html
-    pub fn concurrency_level(mut self, max: usize) -> Self {
+    #[must_use]
+    pub const fn concurrency_level(mut self, max: usize) -> Self {
         self.max_concurrency = max;
         self
     }
@@ -165,11 +166,10 @@ where
 }
 
 fn display_sources(error: &dyn std::error::Error) -> String {
-    if let Some(source) = error.source() {
-        format!("{}: {}", error, display_sources(source))
-    } else {
-        error.to_string()
-    }
+    error.source().map_or_else(
+        || error.to_string(),
+        |source| format!("{}: {}", error, display_sources(source)),
+    )
 }
 
 #[cfg(feature = "runtime-tokio")]
